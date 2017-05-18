@@ -1,6 +1,7 @@
 Attribute VB_Name = "Module3"
 Option Explicit
 Public DataBasePath As String
+Public ConnectionString As String
 Public myADO As ADODB.Connection
 Public myRS As ADODB.Recordset
 Public Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
@@ -52,14 +53,21 @@ End Function
 
 'підключення до бази
 Public Function ConnectToDataBase() As String
-On Error GoTo ErrAccessToDataBase
-   Set myADO = New ADODB.Connection
-   myADO.Open "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=sa; pwd=sql_admin; Initial Catalog=SSPZ;Data Source=172.198.2.240\SQLEXPRESS; Connect Timeout = 60"
-   Set myRS = New ADODB.Recordset
+ConnectionString = ReadINI("DataBase", "ConnectionString", PathFileIni)
+If Len(ConnectionString) = 0 Then
+    MsgBox "Not found connection string to DataBase" & Err.Description, vbCritical, "Error in settings file"
+Else
+    On Error GoTo ErrAccessToDataBase
+        Set myADO = New ADODB.Connection
+        'myADO.Open "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=sa; pwd=sql_admin; Initial Catalog=SSPZ;Data Source=172.198.2.240\SQLEXPRESS; Connect Timeout = 60"
+        myADO.Open ConnectionString
+        Set myRS = New ADODB.Recordset
 ErrAccessToDataBase:
-If Err.Number <> 0 Then
-    Beep
-    MsgBox Err.Number & ": " & Err.Description, vbCritical, "Automatic Notification"
+        If Err.Number <> 0 Then
+        Beep
+        MsgBox Err.Number & ": " & Err.Description, vbCritical, "Automatic Notification"
+    End If
 End If
+
 Exit Function
 End Function
